@@ -107,7 +107,7 @@ if indirim_raporu == "E":
     df_merged = pd.read_excel('UrunListesi.xlsx')
 
     # Sütunları Belirle
-    columns_to_keep = ["StokKodu", "UrunAdi", "StokAdedi", "AlisFiyati", "SatisFiyati", "AramaTerimleri", "MorhipoKodu", "VaryasyonMorhipoKodu", "HepsiBuradaKodu", "VaryasyonHepsiBuradaKodu", "VaryasyonN11Kodu"]
+    columns_to_keep = ["StokKodu", "UrunAdi", "StokAdedi", "AlisFiyati", "SatisFiyati", "AramaTerimleri", "MorhipoKodu", "VaryasyonMorhipoKodu", "HepsiBuradaKodu", "VaryasyonHepsiBuradaKodu", "VaryasyonN11Kodu", "Kategori"]
 
     # Sil
     df_merged = df_merged[columns_to_keep]
@@ -718,7 +718,7 @@ if indirim_raporu == "E":
     veri['Yapılan İndirim Tutarı'] *= veri['Yapılan İndirim Yüzdesi'] / 100
 
     # Çıkan sonucu en yakın tam sayıya yuvarlama (Yapılan İndirimlerin Sadece Yarısı Baz Alındı)
-    veri['Yapılan İndirim Tutarı'] = veri['Yapılan İndirim Tutarı'].round() / 2
+    veri['Yapılan İndirim Tutarı'] = veri['Yapılan İndirim Tutarı'].round() * 2
 
     # Güncellenmiş veriyi kaydetme
     veri.to_excel("CalismaAlani.xlsx", index=False)
@@ -762,12 +762,12 @@ if indirim_raporu == "E":
     # Güncellenmiş veriyi kaydetme
     veri.to_excel("CalismaAlani.xlsx", index=False)
 
-    print(Fore.YELLOW + "Yapılan İndirim ve Bindirim Alış Fiyatını Altına ya da Liste Fiyatının Üsütne Çıkma Engeli Koyuldu")
+    print(Fore.YELLOW + "Yapılan İndirim ve Bindirim Alış Fiyatını Altına ya da Liste Fiyatının Üstüne Çıkma Engeli Koyuldu")
 
     #endregion
-    
-    #region Ürünlere Bindirim Yapma (Yeni)
 
+    #region Ürünlere Bindirim Yapma (Yeni) (Pasif)
+    '''
     # Excel dosyasını okuma
     file_path = 'CalismaAlani.xlsx'
     df = pd.read_excel(file_path)
@@ -802,11 +802,11 @@ if indirim_raporu == "E":
     df.to_excel(output_file_path, index=False)
 
     print(Fore.YELLOW + "Ürünlere Bindirim Yapıldı")
-
+    '''
     #endregion
 
-    #region İndirimli ve Bindirimli Ürünlerin Yuvarlamalarını Ayarlama
-
+    #region İndirimli ve Bindirimli Ürünlerin Yuvarlamalarını Ayarlama (Pasif)
+    '''
     # Excel dosyasını oku
     df = pd.read_excel("CalismaAlani.xlsx")
 
@@ -862,9 +862,9 @@ if indirim_raporu == "E":
     df.to_excel("CalismaAlani.xlsx", index=False)
 
     print(Fore.YELLOW + "Sadece İndirimli ya da Bindirimli Ürünler İçin Fiyat Yuvarlama Yapıldı")
-
+    '''
     #endregion
-    
+
     #region Yapılan İndirim Tutarı Sütununu Güncelleme
 
     # Excel dosyasını oku
@@ -976,9 +976,7 @@ if indirim_raporu == "E":
     driver.quit()
 
     print(Fore.GREEN + "İndirimler ve Bindirimler Siteye İşlendi")
-
-
-
+    
     #endregion
 
     #region Özet Dosyaları Oluşturma ve Saklama
@@ -1175,21 +1173,14 @@ if indirim_raporu == "E":
 
     #endregion
 
+
     os.remove('GMT ve SİTA.xlsx')
-    
+
 else:
     pass
 
 
-
-
-
-
-
-
-
 if panel_gorevleri == "E":
-    
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
@@ -1203,7 +1194,7 @@ if panel_gorevleri == "E":
     password_input.send_keys("123456")
     password_input.send_keys(Keys.RETURN)
 
-    
+
     #region DEDEMAX Tesettür Ürünlerinin Ana Kategorilerini Tesettür Yapma
 
     # Giriş yaptıktan sonra belirtilen sayfaya git
@@ -1947,66 +1938,7 @@ if panel_gorevleri == "E":
 
     print(Fore.GREEN + "Fiyata Hamle Kategorisi Boşaltıldı")
     #endregion
-    '''
-    #region Fiyata Hamle 2 Kategorisini Boşaltma
-
-    # Giriş yaptıktan sonra belirtilen sayfaya git
-    desired_page_url = "https://task.haydigiy.com/admin/product/bulkedit/"
-    driver.get(desired_page_url)
-
-    #Kategori Dahil Alan
-    category_select = Select(driver.find_element("id", "SearchInCategoryIds"))
-
-    #Kategori ID'si (Fiyata Hamle 2)
-    category_select.select_by_value("403")
-
-    #Seçiniz Kısmının Tikini Kaldırma
-    all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
-    if len(all_remove_buttons) > 1:
-        second_remove_button = all_remove_buttons[1]
-        second_remove_button.click()
-    else:
-        pass
-
-    #Ara Butonuna Tıklama
-    search_button = driver.find_element(By.ID, "search-products")
-    search_button.click()
-
-    # Sayfanın en sonuna git
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-    # Kategori Güncelleme Tikine Tıklama
-    checkbox = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "Category_Update")))
-    driver.execute_script("arguments[0].click();", checkbox)
-
-    # Kategori Güncelleme Alanını Bulma
-    category_id_select = driver.find_element(By.ID, "CategoryId")
-
-    # Kategori Güncelleme Alanında Kategori ID'si Seçme (Fiyata Hamle 2)
-    category_id_select = Select(category_id_select)
-    category_id_select.select_by_value("403")
-
-    # Kategori Güncelleme Alanında Yapılacak İşlem Alanını Bulma
-    category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId")
-
-    # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
-    category_transaction_select = Select(category_transaction_select)
-    category_transaction_select.select_by_value("1")
-
-    try:
-        #Kaydet Butonunu Bulma
-        save_button = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary'))
-        )
-
-        #Kaydet Butonununa Tıklama
-        driver.execute_script("arguments[0].click();", save_button)
-    except Exception as e:
-        print(f"Hata: {e}")
-
-    print(Fore.GREEN + "Fiyata Hamle 2 Kategorisi Boşaltıldı")
-    #endregion
-    '''
+  
     #region İndirimli Ürünler Kategorisi Boşaltma ve İndirimli Ürünler Etiketini Kaldırma
 
     # Giriş yaptıktan sonra belirtilen sayfaya git (İndirimli Ürünler Etiketini Kaldırma)
@@ -3448,6 +3380,71 @@ if panel_gorevleri == "E":
         print(f"Hata: {e}")
 
     print(Fore.GREEN + "ERKEK Kategorisindeki Ürünler ERKEK kategorisine alındı")
+    
+    #endregion
+
+    #region DIŞ GİYİM Kategorisindeki Ürünleri DIŞ GİYİM Kategorisine Alma
+
+    # Giriş yaptıktan sonra belirtilen sayfaya git
+    desired_page_url = "https://task.haydigiy.com/admin/product/bulkedit/"
+    driver.get(desired_page_url)
+
+    #Kategori Dahil Alan
+    category_select = Select(driver.find_element("id", "SearchInCategoryIds"))
+
+    #Kategori ID'si (Aksesuar)
+    category_select.select_by_value("541")
+    category_select.select_by_value("165")
+    category_select.select_by_value("85")
+
+
+    #Seçiniz Kısmının Tikini Kaldırma
+    all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
+    if len(all_remove_buttons) > 1:
+        second_remove_button = all_remove_buttons[1]
+        second_remove_button.click()
+    else:
+        pass
+
+    #Ara Butonuna Tıklama
+    search_button = driver.find_element(By.ID, "search-products")
+    search_button.click()
+
+    time.sleep(3)
+
+    # Sayfanın en sonuna git
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+    # Kategori Güncelleme Tikine Tıklama
+    checkbox = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "Category_Update")))
+    driver.execute_script("arguments[0].click();", checkbox)
+
+    # Kategori Güncelleme Alanını Bulma
+    category_id_select = driver.find_element(By.ID, "CategoryId")
+
+    # Kategori Güncelleme Alanında Kategori ID'si Seçme (Seri Sonu)
+    category_id_select = Select(category_id_select)
+    category_id_select.select_by_value("532")
+
+    # Kategori Güncelleme Alanında Yapılacak İşlem Alanını Bulma
+    category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId")
+
+    # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
+    category_transaction_select = Select(category_transaction_select)
+    category_transaction_select.select_by_value("0")
+
+    try:
+        #Kaydet Butonunu Bulma
+        save_button = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary'))
+        )
+
+        #Kaydet Butonununa Tıklama
+        driver.execute_script("arguments[0].click();", save_button)
+    except Exception as e:
+        print(f"Hata: {e}")
+
+    print(Fore.GREEN + "DIŞ GİYİM Kategorisindeki Ürünler DIŞ GİYİM kategorisine alındı")
     
     #endregion
 
