@@ -1190,8 +1190,6 @@ else:
 
 if panel_gorevleri == "E":
     
-
-    #region Ana Kategorileri Belirleme
     
     driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
 
@@ -1205,72 +1203,6 @@ if panel_gorevleri == "E":
     password_input.send_keys("123456")
     password_input.send_keys(Keys.RETURN)
 
-
-    # Kategoriler listesi
-    categories = [
-        "490", "488", "482", "481", "480", "477", "476", "471", "466", "460",
-        "459", "458", "456", "455", "442", "430", "429", "255", "252", "250",
-        "249", "244", "243", "189", "174", "173", "165", "158", "157", "99",
-        "98", "90", "89", "85", "84", "37", "36", "35", "24", "21", "19", "17",
-        "15", "12", "11", "10", "8", "6", "5", "389", "508", "498", "499", "501", "503",
-        "507", "512", "443", "509", "510"
-    ]
-
-    # Giriş yaptıktan sonra belirtilen sayfaya git
-    desired_page_url = "https://task.haydigiy.com/admin/product/bulkedit/"
-    driver.get(desired_page_url)
-
-    # Döngü başlangıcı
-    for category_id in categories:
-        try:
-            # Kategori seçimi
-            category_select = Select(driver.find_element(By.ID, "SearchInCategoryIds"))
-            category_select.select_by_value(category_id)
-
-            # 10 saniye bekle
-            time.sleep(2)
-
-            # "Seçiniz" kısmının tikini kaldırma
-            all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
-            if len(all_remove_buttons) > 1:
-                second_remove_button = all_remove_buttons[1]
-                second_remove_button.click()
-
-            # "Ara" butonuna tıklama
-            search_button = driver.find_element(By.ID, "search-products")
-            search_button.click()
-
-            # 10 saniye bekle
-            time.sleep(4)
-
-            # Sayfanın en sonuna git
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-            # Kategori güncelleme tikine tıklama
-            checkbox = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "Category_Update")))
-            driver.execute_script("arguments[0].click();", checkbox)
-
-            # Kategori güncelleme alanlarını doldurma
-            category_id_select = driver.find_element(By.ID, "CategoryId")
-            category_id_select = Select(category_id_select)
-            category_id_select.select_by_value(category_id)
-
-            category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId")
-            category_transaction_select = Select(category_transaction_select)
-            category_transaction_select.select_by_value("3")
-
-            # Kaydet butonuna tıklama
-            save_button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary')))
-            driver.execute_script("arguments[0].click();", save_button)
-
-            # Bir sonraki kategoriye geçmeden önce 1 saniye bekleme
-            driver.implicitly_wait(1)
-        except Exception as e:
-            print(f"Hata: {e}")
-
-    print(Fore.GREEN + "Ana Kategoriler Belirlendi")
-
-    #endregion
     
     #region DEDEMAX Tesettür Ürünlerinin Ana Kategorilerini Tesettür Yapma
 
