@@ -40,7 +40,7 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 import tkinter as tk
 from tkinter import simpledialog
 import chromedriver_autoinstaller
-
+import gc
 warnings.filterwarnings("ignore")
 pd.options.mode.chained_assignment = None
 
@@ -54,7 +54,6 @@ print("Mustafa ARI")
 print(" ")
 print(Fore.RED + "Panel Yönetimi")
 print(Fore.RED + "İndirim Raporu")
-print(Fore.RED + "Kategori Sıralamaları")
 
 indirim_raporu = input("İndirim Raporu (E/H): ").strip().upper()
 panel_gorevleri = input("Panel Görevleri (E/H): ").strip().upper()
@@ -120,7 +119,6 @@ if indirim_raporu == "E":
     #endregion
 
     #region Arama Terimlerindeki Tarihleri Tespit Edip Çıkarma
-
 
     # Exceli Oku
     df_calisma_alani = pd.read_excel('CalismaAlani.xlsx')
@@ -1173,11 +1171,12 @@ if indirim_raporu == "E":
 
     #endregion
 
-
     os.remove('GMT ve SİTA.xlsx')
 
 else:
     pass
+
+
 
 
 if panel_gorevleri == "E":
@@ -1197,46 +1196,36 @@ if panel_gorevleri == "E":
 
     #region DEDEMAX Tesettür Ürünlerinin Ana Kategorilerini Tesettür Yapma
 
-    # Giriş yaptıktan sonra belirtilen sayfaya git
+    # Sayfaya Git
     desired_page_url = "https://task.haydigiy.com/admin/product/bulkedit/"
     driver.get(desired_page_url)
 
-    #Kategori Dahil Alan
+    # Kategori Dahil Alan
     category_select = Select(driver.find_element("id", "SearchInCategoryIds"))
 
-    #Kategori ID'si (Fiyata Hamle)
+    # Kategori ID'si (TESETTÜR)
     category_select.select_by_value("502")
 
-    #Seçiniz Kısmının Tikini Kaldırma
+    # Seçiniz Kısmının Tikini Kaldırma (Kategori Dahil)
     all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
-    if len(all_remove_buttons) > 1:
-        second_remove_button = all_remove_buttons[1]
-        second_remove_button.click()
-    else:
-        pass
+    second_remove_button = all_remove_buttons[1]
+    second_remove_button.click()
+    
+    # Seçiniz Kısmının Tikini Kaldırma (Marka Dahil)
+    second_remove_button = all_remove_buttons[4]
+    second_remove_button.click()
 
-
-    #Kategori Dahil Alan
+    # Marka Dahil Alan
     category_select = Select(driver.find_element("id", "SearchInManufacturerIds"))
 
-    #Kategori ID'si (Fiyata Hamle)
+    # Marka ID'si (ModelTesettür)
     category_select.select_by_value("79")
-
-    #Seçiniz Kısmının Tikini Kaldırma
-    all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
-    if len(all_remove_buttons) > 1:
-        second_remove_button = all_remove_buttons[3]
-        second_remove_button.click()
-    else:
-        pass
-
-
-    #Ara Butonuna Tıklama
+    
+    # Ara
     search_button = driver.find_element(By.ID, "search-products")
     search_button.click()
-
-    # Sayfanın en sonuna git
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    
+    time.sleep(3)
 
     # Kategori Güncelleme Tikine Tıklama
     checkbox = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "Category_Update")))
@@ -1245,58 +1234,43 @@ if panel_gorevleri == "E":
     # Kategori Güncelleme Alanını Bulma
     category_id_select = driver.find_element(By.ID, "CategoryId")
 
-    # Kategori Güncelleme Alanında Kategori ID'si Seçme (Fiyata Hamle)
+    # Kategori Güncelleme Alanında Kategori ID'si Seçme (TESETTÜR)
     category_id_select = Select(category_id_select)
     category_id_select.select_by_value("502")
 
-    # Kategori Güncelleme Alanında Yapılacak İşlem Alanını Bulma
+    # Kategori Güncelleme Alanında Yapılacak İşlem Alanını Bulma (Ana Kategori Yap)
     category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId")
 
-    # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme (Kategoriden Çıkar)
+    # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme (Ana Kategori Yap)
     category_transaction_select = Select(category_transaction_select)
     category_transaction_select.select_by_value("3")
-
-    try:
-        #Kaydet Butonunu Bulma
-        save_button = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary'))
-        )
-
-        #Kaydet Butonununa Tıklama
-        driver.execute_script("arguments[0].click();", save_button)
-    except Exception as e:
-        print(f"Hata: {e}")
     
+    # Kaydet
+    save_button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary')))
+    driver.execute_script("arguments[0].click();", save_button)
+
+    print(Fore.GREEN + "DEDEMAX Tesettür Ürünlerinin Ana Kategorisi TESETTÜR Yapıldı")
+
     #endregion
 
     #region DEDEMAX Tesettür Ürünlerini Tesettür Kategorisine Ekleme
 
-    # Giriş yaptıktan sonra belirtilen sayfaya git
-    desired_page_url = "https://task.haydigiy.com/admin/product/bulkedit/"
-    driver.get(desired_page_url)
-
-
-    #Kategori Dahil Alan
+    # Marka Dahil Alan
     category_select = Select(driver.find_element("id", "SearchInManufacturerIds"))
 
-    #Kategori ID'si (Fiyata Hamle)
+    # Marka ID'si (ModelTesettür)
     category_select.select_by_value("79")
 
-    #Seçiniz Kısmının Tikini Kaldırma
+    # Seçiniz Kısmının Tikini Kaldırma
     all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
-    if len(all_remove_buttons) > 1:
-        second_remove_button = all_remove_buttons[3]
-        second_remove_button.click()
-    else:
-        pass
+    second_remove_button = all_remove_buttons[3]
+    second_remove_button.click()
 
-
-    #Ara Butonuna Tıklama
+    # Ara
     search_button = driver.find_element(By.ID, "search-products")
     search_button.click()
 
-    # Sayfanın en sonuna git
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(3)
 
     # Kategori Güncelleme Tikine Tıklama
     checkbox = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "Category_Update")))
@@ -1305,31 +1279,19 @@ if panel_gorevleri == "E":
     # Kategori Güncelleme Alanını Bulma
     category_id_select = driver.find_element(By.ID, "CategoryId")
 
-    # Kategori Güncelleme Alanında Kategori ID'si Seçme (Fiyata Hamle)
+    # Kategori Güncelleme Alanında Kategori ID'si Seçme (TESETTÜR)
     category_id_select = Select(category_id_select)
     category_id_select.select_by_value("502")
 
-    # Kategori Güncelleme Alanında Yapılacak İşlem Alanını Bulma
-    category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId")
+    # Kaydet
+    save_button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary')))
+    driver.execute_script("arguments[0].click();", save_button)
 
-    # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme (Kategoriden Çıkar)
-    category_transaction_select = Select(category_transaction_select)
-    category_transaction_select.select_by_value("0")
+    print(Fore.GREEN + "DEDEMAX Tesettür Ürünleri TESETTÜR Kategorisine Alındı")
 
-    try:
-        #Kaydet Butonunu Bulma
-        save_button = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary'))
-        )
-
-        #Kaydet Butonununa Tıklama
-        driver.execute_script("arguments[0].click();", save_button)
-    except Exception as e:
-        print(f"Hata: {e}")
-    
     #endregion
 
-    #region İç Giyim Kategori Güncellemeleri
+    #region İç Giyim Kategori Güncellemeleri (Fantezi İç Giyim Ürünlerini Fantezi İç Giyim Kategorisine Alma)
 
     # Kategori Dahil Alan
     category_select = Select(driver.find_element("id", "SearchInCategoryIds"))
@@ -1337,26 +1299,19 @@ if panel_gorevleri == "E":
     # Kategori ID'si (İç Giyim > Fantezi > Jartiyer)
     category_select.select_by_value("244")
 
-    # Kategori Dahil Alan
-    category_select = Select(driver.find_element("id", "SearchInCategoryIds"))
-
     # Kategori ID'si (İç Giyim > Fantezi > Fantezi Gecelik)
     category_select.select_by_value("249")
 
     # Seçiniz Kısmının Tikini Kaldırma
     all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
-    if len(all_remove_buttons) > 1:
-        second_remove_button = all_remove_buttons[1]
-        second_remove_button.click()
-    else:
-        pass
+    second_remove_button = all_remove_buttons[1]
+    second_remove_button.click()
 
-    # Ara Butonuna Tıklama
+    # Ara
     search_button = driver.find_element(By.ID, "search-products")
     search_button.click()
 
-    # Sayfanın en sonuna git
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    time.sleep(3)
 
     # Kategori Güncelleme Tikine Tıklama
     checkbox = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "Category_Update")))
@@ -1369,118 +1324,82 @@ if panel_gorevleri == "E":
     category_id_select = Select(category_id_select)
     category_id_select.select_by_value("243")
 
-    try:
-        #Kaydet Butonunu Bulma
-        save_button = WebDriverWait(driver, 10).until(
-            EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary'))
-        )
+    # Kaydet
+    save_button = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary')))
+    driver.execute_script("arguments[0].click();", save_button)
 
-        #Kaydet Butonununa Tıklama
-        driver.execute_script("arguments[0].click();", save_button)
-    except Exception as e:
-        print(f"Hata: {e}") 
-
-    # Selenium işlemleri tamamlandıktan sonra tarayıcıyı kapatın
+    # Kapat
     driver.quit()
 
-    print(Fore.GREEN + "İç Giyim Kategorisi Güncellendi")
+    print(Fore.GREEN + "Fantezi İç Giyim Ürünleri Fantezi İç Giyim Kategorisine Alındı")
+    
     #endregion
 
-    #region Ürün Listesi İndirme ve Tüm Düzenlemeler
+    #region Ürün Listesi İndirme
 
-    def download_and_merge_excel(url1, url2, url3):
-        # İlk Excel dosyasını indir
-        response1 = requests.get(url1)
-        with open('excel1.xlsx', 'wb') as f1:
-            f1.write(response1.content)
+    def download_and_merge_excel(urls, output_file='CalismaAlani.xlsx'):
+        dataframes = []
+        for i, url in enumerate(urls, start=1):
+            response = requests.get(url)
+            file_name = f'excel{i}.xlsx'
+            with open(file_name, 'wb') as f:
+                f.write(response.content)
+            dataframes.append(pd.read_excel(file_name))
+            os.remove(file_name)
 
-        # İkinci Excel dosyasını indir
-        response2 = requests.get(url2)
-        with open('excel2.xlsx', 'wb') as f2:
-            f2.write(response2.content)
-
-        # Üçüncü Excel dosyasını indir
-        response3 = requests.get(url3)
-        with open('excel3.xlsx', 'wb') as f3:
-            f3.write(response3.content)
-
-        # Üç Excel dosyasını birleştir
-        df1 = pd.read_excel('excel1.xlsx')
-        df2 = pd.read_excel('excel2.xlsx')
-        df3 = pd.read_excel('excel3.xlsx')
-
-        merged_df = pd.concat([df1, df2, df3], ignore_index=True)
-
-        # Birleştirilmiş dosyaları yeni bir Excel'e yaz
-        merged_df.to_excel('UrunListesi.xlsx', index=False)
-
-        # İndirilen Excel dosyalarını sil 
-        os.remove('excel1.xlsx')
-        os.remove('excel2.xlsx')
-        os.remove('excel3.xlsx')
+        # Excel dosyalarını birleştir
+        merged_df = pd.concat(dataframes, ignore_index=True)
+        merged_df.to_excel(output_file, index=False)
 
     if __name__ == "__main__":
-        url1 = "https://task.haydigiy.com/FaprikaXls/TJ1TB6/1/"
-        url2 = "https://task.haydigiy.com/FaprikaXls/TJ1TB6/2/"
-        url3 = "https://task.haydigiy.com/FaprikaXls/TJ1TB6/3/"
+        urls = [
+            "https://task.haydigiy.com/FaprikaXls/TJ1TB6/1/",
+            "https://task.haydigiy.com/FaprikaXls/TJ1TB6/2/",
+            "https://task.haydigiy.com/FaprikaXls/TJ1TB6/3/"
+        ]
+        download_and_merge_excel(urls)
 
-        download_and_merge_excel(url1, url2, url3)
+    print(Fore.GREEN + "Ürün Listesi İndirilidi")
 
-    # Birleştirilmiş Excel dosyasını oku
-    df_merged = pd.read_excel('UrunListesi.xlsx')
+    #endregion
+    
+    #region Arama Terimlerindeki Tarihleri Tespit Edip Sütunu Güncelleme
 
-    # Güncellenmiş DataFrame'i yeni bir Excel dosyasına yaz
-    df_merged.to_excel('CalismaAlani.xlsx', index=False)
-
-    # Dosya adı
-    dosya_adi = "UrunListesi.xlsx"
-    # Dosyayı sil
-    if os.path.exists(dosya_adi):
-        os.remove(dosya_adi)    
-    else:
-        pass
-
-
-
-    # Excel'i oku
+    # "CalismaAlani" Excel'ini Oku
     df = pd.read_excel('CalismaAlani.xlsx')
-
-    # Kategori sütunundaki her bir hücre için kontrol yap
-    for index, row in df.iterrows():
-        if "Kot Pantolon" in row['Kategori']:
-            # ListeFiyati sütunundaki hücreyi güncelle ve 2 ile çarp, sonucu tam sayıya dönüştür
-            df.at[index, 'ListeFiyati'] = int(row['AlisFiyati'] * 0)
-        else:
-            # Diğer durumlarda ListeFiyati sütunundaki hücreyi boş bırak
-            df.at[index, 'ListeFiyati'] = ""
-
-    # Değişiklikleri kaydet
-    df.to_excel('CalismaAlani.xlsx', index=False)
-
-
-    print(Fore.GREEN + "Kot Pantolon Liste Fiyatları Ayarlandı")
-
-
-    # "CalismaAlani" Excel'i Oku'
-    df_calisma_alani = pd.read_excel('CalismaAlani.xlsx')
 
     # Tarihleri çıkarmak için regex deseni
     date_pattern = r'(\d{1,2}\.\d{1,2}\.\d{4})'
 
-    # "AramaTerimleri" sütunundaki tarihleri temizle
-    df_calisma_alani['AramaTerimleri'] = df_calisma_alani['AramaTerimleri'].apply(lambda x: re.search(date_pattern, str(x)).group(1) if re.search(date_pattern, str(x)) else None)
+    # "AramaTerimleri" sütunundaki tarihleri temizle ve aynı zamanda kaç güne biter hesapla
+    def process_search_term(row):
+        arama_terimi = str(row['AramaTerimleri'])
+        
+        # Eğer tarih varsa, temizle ve gün sayısını hesapla
+        tarih_match = re.search(date_pattern, arama_terimi)
+        if tarih_match:
+            tarih_str = tarih_match.group(1)
+            tarih = datetime.strptime(tarih_str, '%d.%m.%Y')
+            bugun = datetime.today()
+            uzaklik = (bugun - tarih).days
+            return uzaklik
+        else:
+            return 0
+
+    # "AramaTerimleri" sütununu güncelleme ve hesaplama işlemi
+    df['AramaTerimleri'] = df.apply(process_search_term, axis=1)
 
     # Güncellenmiş DataFrame'i aynı Excel dosyasının üzerine yaz
-    with pd.ExcelWriter('CalismaAlani.xlsx', engine='xlsxwriter') as writer:
-        df_calisma_alani.to_excel(writer, index=False, sheet_name='Sheet1')
+    df.to_excel('CalismaAlani.xlsx', index=False)
 
-
-    print(Fore.GREEN + "Yeni Gelenler Kategorisi İçin Ürünlerin Yüklenme Tarihleri Belirlendi")
-
+    print(Fore.GREEN + "Ürünlerin Kaç Gündür Aktif Oldukları Belirlendi")
+    
+    #endregion    
+    
+    #region Liste Fiyatlarını Belirleme
+    
     # Ekceli Okuma
     df = pd.read_excel('CalismaAlani.xlsx')
-
-    # Alış Fiyatına Göre İşlemler ve Kategori Kontrolü
     def calculate_list_price(row):
         alis_fiyati = row['AlisFiyati']
         kategori = row['Kategori']
@@ -1499,50 +1418,24 @@ if panel_gorevleri == "E":
             result = alis_fiyati
 
         # KDV
-        if isinstance(kategori, str) and any(category in kategori for category in ["Parfüm", "Gözlük", "Saat"]):
+        if isinstance(kategori, str) and any(category in kategori for category in ["Parfüm", "Gözlük", "Saat", "Kolye", "Küpe", "Bileklik", "Bilezik"]):
             result *= 1.20
         else:
             result *= 1.10
 
         return result
 
-    # Liste Fiyatı 2 Sütunu
+    # Liste Fiyatı 2 Sütunu Oluşturma ve Liste Fiyatlarını Yazma
     df['ListeFiyati2'] = df.apply(calculate_list_price, axis=1)
 
     # Exceli Kaydet
     df.to_excel('CalismaAlani.xlsx', index=False)
 
-    print(Fore.GREEN + "İndirimli Ürünler - Fiyata Hamle ve Fiyata Hamle 2 Kategorisi İçin Liste Fiyatları Belirlendi")
+    print(Fore.GREEN + "Liste Fiyatları Belirlendi")
 
+    #endregion
 
-    # "CalismaAlani" Excel'i Oku'
-    df = pd.read_excel('CalismaAlani.xlsx')
-
-    # Kaç Güne Biter Hesaplama
-    def calculate_days_to_today(row):
-        arama_terimi = row['AramaTerimleri']
-
-        # Eğer hücre boşsa veya tarih içermiyorsa 0 döndür
-        if pd.isna(arama_terimi) or not any(char.isdigit() for char in str(arama_terimi)):
-            return 0
-
-        # Tarihi çıkartma
-        tarih = datetime.strptime(arama_terimi.split(';')[0], '%d.%m.%Y')
-        
-        # Bugünkü tarihten uzaklık hesapla
-        bugun = datetime.today()
-        uzaklik = (bugun - tarih).days
-
-        return uzaklik
-
-    # "AramaTerimleri" Sütununu Güncelleme
-    df['AramaTerimleri'] = df.apply(calculate_days_to_today, axis=1)
-
-    # Sonucu Mevcut Excel Dosyasının Üzerine Kaydetme
-    df.to_excel('CalismaAlani.xlsx', index=False)
-
-
-
+    #region Beden Durumu Hesaplama
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1574,6 +1467,9 @@ if panel_gorevleri == "E":
 
     print(Fore.GREEN + "Seri Sonu Kategorisi İçin Ürünlerin Aktif Beden Oranları Belirlendi")
 
+    #endregion
+
+    #region İndirim Yüzdesi Hesaplama
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1592,6 +1488,9 @@ if panel_gorevleri == "E":
 
     print(Fore.GREEN + "İndirimli Ürünler Kategorisi İçin Ürünlerin İndirim Oranı Belirlendi")
 
+    #endregion
+
+    #region Büyük Beden Ürünleri Belileme
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1611,38 +1510,9 @@ if panel_gorevleri == "E":
 
     print(Fore.GREEN + "Büyük Beden Ürünler Kategorisi İçin Ürünler Belirlendi")
 
+    #endregion
 
-    # "CalismaAlani" Excel'i Oku'
-    df_calisma_alani = pd.read_excel('CalismaAlani.xlsx')
-
-    # "RafKodu" sütununu kopyala ve hemen yanına yapıştır
-    df_calisma_alani['GunlukSatisAdedi'] = df_calisma_alani['MorhipoKodu']
-
-    # Sonucu Mevcut Excel Dosyasının Üzerine Kaydetme
-    df_calisma_alani.to_excel('CalismaAlani.xlsx', index=False)
-
-
-
-
-    # "CalismaAlani" Excel'i Oku'
-    df = pd.read_excel('CalismaAlani.xlsx')
-
-    # "GunlukSatisAdedi" sütunundaki sayısal olarak en büyük ilk 1000 değeri "Çok Satanlar" olarak değiştirme
-    df['GunlukSatisAdedi'] = pd.to_numeric(df['GunlukSatisAdedi'], errors='coerce')
-    en_buyuk_degerler = df.nlargest(2500, 'GunlukSatisAdedi')
-    df.loc[en_buyuk_degerler.index, 'GunlukSatisAdedi'] = 'Çok Satanlar'
-
-    # "Kategori" sütunu "Çok Satanlar" olmayanları silme
-    df.loc[df['GunlukSatisAdedi'] != 'Çok Satanlar', 'GunlukSatisAdedi'] = ''
-
-    # Excel'i Kaydet
-    df.to_excel('CalismaAlani.xlsx', index=False)
-
-    print(Fore.GREEN + "Çok Satanlar Kategorisi İçin En Çok Satan Ürünler Belirlendi")
-
-
-
-
+    #region Beden Durumu %50'nin Altında Olan Ürünleri Seri Sonu Kategorisine Alma
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1657,8 +1527,36 @@ if panel_gorevleri == "E":
     # Excel'i Kaydet
     df.to_excel('CalismaAlani.xlsx', index=False)
 
+    print(Fore.GREEN + "Beden Durumu %50'nin Altında Olan Ürünlere Seri Sonu Kategorisi Verildi")
 
+    #endregion
 
+    #region İndirim Yüzdesi %5'in Üstünde ve Fark Değeri 5'in Üstünde Olan Ürünleri İndirimli Ürünler ve Fiyata Hamle'ye Alma
+
+    # "CalismaAlani" Excel dosyasını oku
+    df = pd.read_excel('CalismaAlani.xlsx')
+
+    # Sütunları sayısal değerlere dönüştür, hata varsa NaN olarak ayarla
+    df['İndirim Yüzdesi'] = pd.to_numeric(df['İndirim Yüzdesi'], errors='coerce', downcast='float')
+    df['ListeFiyati2'] = pd.to_numeric(df['ListeFiyati2'], errors='coerce')
+    df['SatisFiyati'] = pd.to_numeric(df['SatisFiyati'], errors='coerce')
+
+    # Koşullu işlem: "İndirim Yüzdesi" Fiyata Hamle 2 değilse ve diğer koşullar sağlanıyorsa işlem yap
+    df.loc[
+        (~df['İndirim Yüzdesi'].astype(str).str.contains('Fiyata Hamle 2')) &  # Fiyata Hamle 2 olmayanlar
+        (df['İndirim Yüzdesi'] > 5) &  # İndirim Yüzdesi > 5
+        (abs(df['ListeFiyati2'] - df['SatisFiyati']) > 5),  # Liste Fiyatı 2 ile Satış Fiyatı arasındaki fark > 5
+        'İndirim Yüzdesi'
+    ] = 'İndirimli Ürünler;Fiyata Hamle'
+
+    # Güncellenmiş Excel dosyasını kaydet
+    df.to_excel('CalismaAlani.xlsx', index=False)
+
+    print(Fore.GREEN + "İndirimli Ürünler ve Fiyata Hamle Kategorisine Alınacak Ürünler Belirlendi")
+
+    #endregion
+
+    #region Fiyata Hamle 2 Kategorisi İçin Ürünleri Belirleme
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1681,35 +1579,9 @@ if panel_gorevleri == "E":
 
     print(Fore.GREEN + "Fiyata Hamle 2 Kategorisi İçin Bindirimli Ürünler Belirlendi")
 
+    #endregion
 
-
-
-
-
-
-
-    # "CalismaAlani" Excel dosyasını oku
-    df = pd.read_excel('CalismaAlani.xlsx')
-
-    # Sütunları sayısal değerlere dönüştür, hata varsa NaN olarak ayarla
-    df['İndirim Yüzdesi'] = pd.to_numeric(df['İndirim Yüzdesi'], errors='coerce')
-    df['ListeFiyati2'] = pd.to_numeric(df['ListeFiyati2'], errors='coerce')
-    df['SatisFiyati'] = pd.to_numeric(df['SatisFiyati'], errors='coerce')
-
-    # Koşullu işlem: "İndirim Yüzdesi" > 5 ve "ListeFiyati2" ile "SatisFiyati" arasındaki fark > 5 ise
-    df.loc[
-        (df['İndirim Yüzdesi'] > 5) & (abs(df['ListeFiyati2'] - df['SatisFiyati']) > 5), 
-        'İndirim Yüzdesi'
-    ] = 'İndirimli Ürünler;Fiyata Hamle'
-
-    # Güncellenmiş Excel dosyasını kaydet
-    df.to_excel('CalismaAlani.xlsx', index=False)
-
-
-
-
-
-
+    #region Ekstra Açılan Sütunlarda Gereksiz Olan Hücrelerin İçeriğini Temizleme
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1720,11 +1592,11 @@ if panel_gorevleri == "E":
     # Excel'i Kaydet
     df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
 
+    print(Fore.GREEN + "Ekstra Açılan Sütunlarda Gereksiz İçerikler Temizlendi")
 
+    #endregion
 
-
-
-
+    #region Yeni Gelen Sütun Oluşturma ve Arama Terimlerinde 14 ve Daha Küçük Olan Değerleri Yeni Gelen Olarak Ayarlama
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1735,58 +1607,11 @@ if panel_gorevleri == "E":
     # Excel'i Kaydet
     df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
 
+    print(Fore.GREEN + "Son 14 Günde Resmi Yüklenen Ürünler Yeni Gelenler Kategorisine Alındı")
 
-
-    # Excel'i tekrar oku
-    df = pd.read_excel('CalismaAlani.xlsx')
-
-    # 'Maliyet' sütununu oluştur
-    df['Maliyet'] = df.apply(lambda row: 'Maliyetine Satışlar' if row['SatisFiyati'] <= row['AlisFiyati'] * 1.15 else '', axis=1)
-
-    # Excel'i Kaydet
-    df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
-
-
-
-
-
-
-    # Excel'i tekrar oku
-    df = pd.read_excel('CalismaAlani.xlsx')
-
-    # 'HepsiBuradaKodu' sütunundaki boş hücreleri 0 ile değiştir
-    df['HepsiBuradaKodu'].fillna(0, inplace=True)
-
-    # 'Görüntülenme' sütununu oluştur
-    df['Görüntülenme'] = 100 * df['HepsiBuradaKodu'] / df['HepsiBuradaKodu'].sum()
-
-    # Excel'i Kaydet
-    df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
-
-    # Excel'i tekrar oku
-    df = pd.read_excel('CalismaAlani.xlsx')
-
-    # 'Görüntülenme' sütunundaki verilerin ortalamasını al
-    goruntulenme_ortalama = df['Görüntülenme'].mean()
-
-    # Ortalamayı 0.60 ile çarp
-    goruntulenme_ortalama *= 0.40
-
-    # 'Görüntülenme' sütununda çıkan sonuçtan küçük olanları "Bunları da Görmek İsteyebilirsiniz" olarak değiştir, büyük olanları boş bırak
-    df['Görüntülenme'] = df['Görüntülenme'].apply(lambda x: 'Bunları da Görmek İsteyebilirsiniz' if x < goruntulenme_ortalama else '')
-
-    # Excel'i Kaydet
-    df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
-
-
-
-
-
-
-
-
-
-
+    #endregion
+    
+    #region Yeni Sütun Adında Bir Sütun Oluşturma ve Tüm Kategori Kurgularını Birleştirme
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1796,9 +1621,6 @@ if panel_gorevleri == "E":
         df['Beden Durumu'].astype(str) + ';' +
         df['İndirim Yüzdesi'].astype(str) + ';' +
         df['Büyük Beden'].astype(str) + ';' +
-        df['Maliyet'].astype(str) + ';' +
-        df['Görüntülenme'].astype(str) + ';' +
-        df['GunlukSatisAdedi'].astype(str) + ';' +
         df['Yeni Gelen'].astype(str)
     )
 
@@ -1808,8 +1630,37 @@ if panel_gorevleri == "E":
     # Excel'i Kaydet
     df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
 
+    print(Fore.GREEN + "Tüm Kurgular Tek Bir Sütunda Toplandı")
 
+    #endregion
 
+    #region Ürünlere Liste Fiyatı Verme
+
+    # Excel'i oku
+    df = pd.read_excel('CalismaAlani.xlsx')
+
+    # Kategori sütunundaki her bir hücre için kontrol yap
+    for index, row in df.iterrows():
+        # "Fiyata Hamle" içeriyor mu kontrol et ve aynı zamanda "Kategori" sütunu "Kot Pantolon" içermiyor mu kontrol et
+        if isinstance(row['YeniSutun'], str) and "Fiyata Hamle" in row['YeniSutun']:
+            if "Kot Pantolon" in str(row['Kategori']):
+                # Kategori "Kot Pantolon" içeriyorsa ListeFiyati 0 yap
+                df.at[index, 'ListeFiyati'] = 0
+            else:
+                # ListeFiyati sütunundaki hücreyi güncelle ve 1.8 ile çarp, sonucu tam sayıya dönüştür
+                df.at[index, 'ListeFiyati'] = int(row['AlisFiyati'] * 1.8)
+        else:
+            # Mevcut değeri koru
+            df.at[index, 'ListeFiyati'] = row['ListeFiyati']
+
+    # Değişiklikleri kaydet
+    df.to_excel('CalismaAlani.xlsx', index=False)
+
+    print(Fore.GREEN + "Fiyata Hamle Kategorisindeki Ürünlere Liste Fiyatı Verildi")
+
+    #endregion
+
+    #region Arama Terimleri ve Kategori Sütunlarının İçeriğini Temizleme
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1821,8 +1672,11 @@ if panel_gorevleri == "E":
     # Excel'i Kaydet
     df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
 
+    print(Fore.GREEN + "Arama Terimleri ve Kategori Sütunlarının İçeriği Temizlendi")
 
+    #endregion
 
+    #region Yeni Sütun Verilerini Kategori Sütununa Taşıma
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
@@ -1836,37 +1690,25 @@ if panel_gorevleri == "E":
     # Excel'i Kaydet
     df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
 
+    print(Fore.GREEN + "Yeni Sütun Sütunu Kategori Sütununa Taşındı")
 
+    #endregion
 
+    #region Ekstra Açılan Tüm Sütunları Silme
 
     # "CalismaAlani" Excel'i Oku'
     df = pd.read_excel('CalismaAlani.xlsx')
 
     # Belirtilen sütunları sil
-    df = df.drop(['ListeFiyati2', 'Beden Durumu', 'İndirim Yüzdesi', 'Büyük Beden', 'GunlukSatisAdedi', 'Yeni Gelen', 'Maliyet', 'Görüntülenme'], axis=1)
+    df = df.drop(['ListeFiyati2', 'Beden Durumu', 'İndirim Yüzdesi', 'Büyük Beden', 'Yeni Gelen'], axis=1)
 
     # Excel'i Kaydet
     df.to_excel('CalismaAlani.xlsx', index=False, engine='openpyxl')
 
-
-
-    # Excel'i oku
-    df = pd.read_excel('CalismaAlani.xlsx')
-
-    # Kategori sütunundaki her bir hücre için kontrol yap
-    for index, row in df.iterrows():
-        if isinstance(row['Kategori'], str) and "Fiyata Hamle" in row['Kategori']:
-            # ListeFiyati sütunundaki hücreyi güncelle ve 1.8 ile çarp, sonucu tam sayıya dönüştür
-            df.at[index, 'ListeFiyati'] = int(row['AlisFiyati'] * 1.8)
-        else:
-            # Mevcut değeri koru
-            df.at[index, 'ListeFiyati'] = row['ListeFiyati']
-
-    # Değişiklikleri kaydet
-    df.to_excel('CalismaAlani.xlsx', index=False)
+    print(Fore.GREEN + "Ekstra Açılan Tüm Sütunlar Silindi")
 
     #endregion
-
+    
     #region Giriş Yapma ve Fiyata Hamle Kategorisini Boşaltma
 
     # ChromeOptions oluştur
@@ -2173,7 +2015,7 @@ if panel_gorevleri == "E":
 
     print(Fore.GREEN + "Yeni Gelenler Kategorisi Boşaltıldı")
     #endregion
-    
+
     #region Excelle Ürün Yükleme Alanı
     desired_url = "https://task.haydigiy.com/admin/importproductxls/edit/24"
     driver.get(desired_url)
@@ -2181,11 +2023,12 @@ if panel_gorevleri == "E":
     # Yükle Butonunu Bul
     file_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, 'input[name="qqfile"]')))
 
-    # CalismaAlani Excelini Bul
-    file_path = "C:/Users/Public/Panel Görevleri/CalismaAlani.xlsx"
+    # CalismaAlani Excel dosyasının mevcut çalışma dizininde olduğunu varsay
+    file_path = os.path.join(os.getcwd(), "CalismaAlani.xlsx")
 
     # Dosyayı seç
     file_input.send_keys(file_path)
+    
 
     # "İşlemler" düğmesine tıkla
     operations_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'btn-success')))
@@ -2219,9 +2062,12 @@ if panel_gorevleri == "E":
         wait_for_page_load(driver)
 
     time.sleep(360)
-    print(Fore.GREEN + "Excelle Ürün Yükleme Yapıldı")
-    #endregion
     
+    print(Fore.GREEN + "Excelle Ürün Yükleme Yapıldı")
+
+    
+    #endregion
+
     #region Çocuk Ürünlerini Yeni Gelenlerden Çıkarma
 
     # Giriş yaptıktan sonra belirtilen sayfaya git
@@ -4474,7 +4320,7 @@ if panel_gorevleri == "E":
     else:
         pass
 
-    # Ara Butonuna Tıklama
+    # Ara
     search_button = driver.find_element(By.ID, "search-products")
     search_button.click()
 
@@ -4851,30 +4697,13 @@ if panel_gorevleri == "E":
 
     print(Fore.GREEN + "Seri Sonu Kategorisindeki Ürünler Dev İndirimler Kategorisine Alındı")
     
-    
-
     #endregion
 
     #region Faturasız Siparişleri Faturaya Gönderme
 
-    #Selenium Giriş Yapma
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
-
-    login_url = "https://task.haydigiy.com/kullanici-giris/?ReturnUrl=%2Fadmin"
-    driver.get(login_url)
-
-    email_input = driver.find_element("id", "EmailOrPhone")
-    email_input.send_keys("mustafa_kod@haydigiy.com")
-
-    password_input = driver.find_element("id", "Password")
-    password_input.send_keys("123456")
-    password_input.send_keys(Keys.RETURN)
-
     # Sipariş Aktarım Sayfasına Gitme ve Tarih Aralığını 1 Haftaya Göre Ayarlama
     desired_page_url = "https://task.haydigiy.com/admin/exportorder/edit/129/"
     driver.get(desired_page_url)
-
-
 
     # 7 gün önceki tarihi al tarihini al
     yesterday = datetime.now() - timedelta(days=7)
@@ -4970,21 +4799,11 @@ if panel_gorevleri == "E":
             send_order_ids_to_shipment_integration(order_ids)
 
     print(Fore.GREEN + "Faturasız Siparişler Entegrasyona Yeniden Gönderildi")
+    
     #endregion
     
-
-    # Dosya Adı
-    dosya_adlari = ['CalismaAlani.xlsx']
-
-    # Dosyaları sil
-    for dosya_adi in dosya_adlari:
-        try:
-            os.remove(dosya_adi)
-            
-        except FileNotFoundError:
-            print(f"{dosya_adi} bulunamadı.")
-        except Exception as e:
-            print(f"{dosya_adi} silinirken bir hata oluştu: {str(e)}")
+    gc.collect()
+    os.remove('CalismaAlani.xlsx')
 
 else:
     pass
