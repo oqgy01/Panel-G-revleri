@@ -2671,6 +2671,83 @@ if panel_gorevleri == "E":
     
     #endregion
 
+    #region DEDEMAX Tesettür Ürünlerini Yeni Gelenlerden Çıkarma
+
+    # Giriş yaptıktan sonra belirtilen sayfaya git
+    desired_page_url = "https://task.haydigiy.com/admin/product/bulkedit/"
+    driver.get(desired_page_url)
+
+    #Kategori Dahil Alan
+    category_select = Select(driver.find_element("id", "SearchInCategoryIds"))
+
+    #Kategori ID'si (Fiyata Hamle)
+    category_select.select_by_value("502")
+
+    #Seçiniz Kısmının Tikini Kaldırma
+    all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
+    if len(all_remove_buttons) > 1:
+        second_remove_button = all_remove_buttons[1]
+        second_remove_button.click()
+    else:
+        pass
+
+
+    #Kategori Dahil Alan
+    category_select = Select(driver.find_element("id", "SearchInManufacturerIds"))
+
+    #Kategori ID'si (Fiyata Hamle)
+    category_select.select_by_value("39")
+
+    #Kategori ID'si (Fiyata Hamle)
+    category_select.select_by_value("79")
+
+    #Seçiniz Kısmının Tikini Kaldırma
+    all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
+    if len(all_remove_buttons) > 1:
+        second_remove_button = all_remove_buttons[3]
+        second_remove_button.click()
+    else:
+        pass
+
+
+    #Ara Butonuna Tıklama
+    search_button = driver.find_element(By.ID, "search-products")
+    search_button.click()
+
+    # Sayfanın en sonuna git
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+    # Kategori Güncelleme Tikine Tıklama
+    checkbox = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "Category_Update")))
+    driver.execute_script("arguments[0].click();", checkbox)
+
+    # Kategori Güncelleme Alanını Bulma
+    category_id_select = driver.find_element(By.ID, "CategoryId")
+
+    # Kategori Güncelleme Alanında Kategori ID'si Seçme (Fiyata Hamle)
+    category_id_select = Select(category_id_select)
+    category_id_select.select_by_value("347")
+
+    # Kategori Güncelleme Alanında Yapılacak İşlem Alanını Bulma
+    category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId")
+
+    # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme (Kategoriden Çıkar)
+    category_transaction_select = Select(category_transaction_select)
+    category_transaction_select.select_by_value("1")
+
+    try:
+        #Kaydet Butonunu Bulma
+        save_button = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary'))
+        )
+
+        #Kaydet Butonununa Tıklama
+        driver.execute_script("arguments[0].click();", save_button)
+    except Exception as e:
+        print(f"Hata: {e}")
+    
+    #endregion
+
     #region ÜST GİYİM Kategorisindeki Ürünleri ÜST GİYİM Kategorisine Alma
 
     # Giriş yaptıktan sonra belirtilen sayfaya git
