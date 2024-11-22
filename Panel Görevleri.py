@@ -64,6 +64,8 @@ password_input = driver.find_element("id", "Password")
 password_input.send_keys("123456")
 password_input.send_keys(Keys.RETURN)
 
+
+
 #region DEDEMAX Tesettür Ürünlerinin Ana Kategorilerini Tesettür Yapma
 
 # Sayfaya Git
@@ -401,7 +403,7 @@ print(Fore.GREEN + "Beden Durumu %50'nin Altında Olan Ürünlere Seri Sonu Kate
 
 #endregion
 
-#region İndirim Yüzdesi %5'in Üstünde ve Fark Değeri 5'in Üstünde Olan Ürünleri İndirimli Ürünler ve Fiyata Hamle'ye Alma
+#region İndirim Yüzdesi %5'in Üstünde ve Fark Değeri 5'in Üstünde Olan Ürünleri İndirimli Ürünler ve Fiyata Hamle'ye Alma (Eğer Satış Fiyatı 70'den Küçükse Limitleri 3 Olarak Güncelle)
 
 # "CalismaAlani" Excel dosyasını oku
 df = pd.read_excel('CalismaAlani.xlsx')
@@ -415,7 +417,7 @@ df['SatisFiyati'] = pd.to_numeric(df['SatisFiyati'], errors='coerce')
 df.loc[
     (~df['İndirim Yüzdesi'].astype(str).str.contains('Fiyata Hamle 2')) &  # Fiyata Hamle 2 olmayanlar
     (df['İndirim Yüzdesi'] > 5) &  # İndirim Yüzdesi > 5
-    (abs(df['ListeFiyati2'] - df['SatisFiyati']) > 5),  # Liste Fiyatı 2 ile Satış Fiyatı arasındaki fark > 5
+    (abs(df['ListeFiyati2'] - df['SatisFiyati']) > 6),  # Liste Fiyatı 2 ile Satış Fiyatı arasındaki fark > 5
     'İndirim Yüzdesi'
 ] = 'İndirimli Ürünler;Fiyata Hamle'
 
@@ -3800,3 +3802,5 @@ print(Fore.GREEN + "Faturasız Siparişler Entegrasyona Yeniden Gönderildi")
 
 gc.collect()
 os.remove('CalismaAlani.xlsx')
+
+
