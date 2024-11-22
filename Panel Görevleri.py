@@ -65,7 +65,6 @@ password_input.send_keys("123456")
 password_input.send_keys(Keys.RETURN)
 
 
-
 #region DEDEMAX Tesettür Ürünlerinin Ana Kategorilerini Tesettür Yapma
 
 # Sayfaya Git
@@ -403,7 +402,7 @@ print(Fore.GREEN + "Beden Durumu %50'nin Altında Olan Ürünlere Seri Sonu Kate
 
 #endregion
 
-#region İndirim Yüzdesi %5'in Üstünde ve Fark Değeri 5'in Üstünde Olan Ürünleri İndirimli Ürünler ve Fiyata Hamle'ye Alma (Eğer Satış Fiyatı 70'den Küçükse Limitleri 3 Olarak Güncelle)
+#region İndirim Yüzdesi %5'in Üstünde ve Fark Değeri 5'in Üstünde Olan Ürünleri İndirimli Ürünler ve Fiyata Hamle'ye Alma
 
 # "CalismaAlani" Excel dosyasını oku
 df = pd.read_excel('CalismaAlani.xlsx')
@@ -639,6 +638,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -698,6 +699,8 @@ category_transaction_select.select_by_value("1")
 # Sayfanın en sonuna git
 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -755,6 +758,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -815,6 +820,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -874,6 +881,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -900,7 +909,6 @@ file_path = os.path.join(os.getcwd(), "CalismaAlani.xlsx")
 
 # Dosyayı seç
 file_input.send_keys(file_path)
-
 
 # "İşlemler" düğmesine tıkla
 operations_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, 'btn-success')))
@@ -933,10 +941,24 @@ if wait_for_element_and_click(driver, By.ID, 'import-product-xls-execute'):
     # Yüklenmeyi Bekle
     wait_for_page_load(driver)
 
-time.sleep(360)
+# Dinamik Bekleme İşlevi
+def wait_for_success_or_timeout(driver, timeout=360):
+    end_time = time.time() + timeout
+    while time.time() < end_time:
+        try:
+            # Eğer <span data-notify="message">faprika.import.execute.success</span> bulunursa devam et
+            if driver.find_elements(By.XPATH, '//span[@data-notify="message" and text()="faprika.import.execute.success"]'):
+                pass
+                return
+        except Exception as e:
+            pass
+        time.sleep(1)  # 1 saniyelik aralıklarla kontrol et
+    print(Fore.YELLOW + "Başarı mesajı bulunamadı, bekleme süresi doldu.")
+
+# Dinamik bekleme çağrısı
+wait_for_success_or_timeout(driver)
 
 print(Fore.GREEN + "Excelle Ürün Yükleme Yapıldı")
-
 
 #endregion
 
@@ -984,6 +1006,10 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -1044,6 +1070,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -1102,6 +1130,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -1162,6 +1192,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -1220,6 +1252,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -1299,6 +1333,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -1375,6 +1411,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme (Kategoriden Çıkar)
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -1453,6 +1491,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -1529,6 +1569,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme (Kategoriden Çıkar)
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -1607,6 +1649,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -1666,6 +1710,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -1729,6 +1775,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -1790,6 +1838,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -1853,6 +1903,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -1914,6 +1966,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -1977,6 +2031,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2038,6 +2094,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -2101,6 +2159,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2162,6 +2222,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -2228,6 +2290,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2240,67 +2304,6 @@ except Exception as e:
     print(f"Hata: {e}")
 
 print(Fore.GREEN + "DIŞ GİYİM Kategorisindeki Ürünler DIŞ GİYİM kategorisine alındı")
-
-#endregion
-
-#region Unisex Kategorisindeki Ürünleri Unisex Markasına Ekleme
-
-# Giriş yaptıktan sonra belirtilen sayfaya git
-desired_page_url = "https://task.haydigiy.com/admin/product/bulkedit/"
-driver.get(desired_page_url)
-
-
-
-#Kategori Dahil Alan
-category_select = Select(driver.find_element("id", "SearchInCategoryIds"))
-
-#Kategori ID'si (Fiyata Hamle)
-category_select.select_by_value("384")
-
-#Seçiniz Kısmının Tikini Kaldırma
-all_remove_buttons = driver.find_elements(By.XPATH, "//span[@class='select2-selection__choice__remove']")
-if len(all_remove_buttons) > 1:
-    second_remove_button = all_remove_buttons[1]
-    second_remove_button.click()
-else:
-    pass
-
-
-#Ara Butonuna Tıklama
-search_button = driver.find_element(By.ID, "search-products")
-search_button.click()
-
-# Sayfanın en sonuna git
-driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-
-# Kategori Güncelleme Tikine Tıklama
-checkbox = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "Manufacturer_Update")))
-driver.execute_script("arguments[0].click();", checkbox)
-
-# Kategori Güncelleme Alanını Bulma
-category_id_select = driver.find_element(By.ID, "ManufacturerId")
-
-# Kategori Güncelleme Alanında Kategori ID'si Seçme (Fiyata Hamle)
-category_id_select = Select(category_id_select)
-category_id_select.select_by_value("77")
-
-# Kategori Güncelleme Alanında Yapılacak İşlem Alanını Bulma
-category_transaction_select = driver.find_element(By.ID, "ManufacturerTransactionId")
-
-# Kategori Güncelleme Alanında Yapılacak İşlemi Seçme (Kategoriden Çıkar)
-category_transaction_select = Select(category_transaction_select)
-category_transaction_select.select_by_value("0")
-
-try:
-    #Kaydet Butonunu Bulma
-    save_button = WebDriverWait(driver, 10).until(
-        EC.visibility_of_element_located((By.CLASS_NAME, 'btn-primary'))
-    )
-
-    #Kaydet Butonununa Tıklama
-    driver.execute_script("arguments[0].click();", save_button)
-except Exception as e:
-    print(f"Hata: {e}")
 
 #endregion
 
@@ -2348,6 +2351,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -2408,6 +2413,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2466,6 +2473,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -2526,6 +2535,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2585,6 +2596,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2643,6 +2656,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -2704,6 +2719,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2762,6 +2779,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -2822,6 +2841,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2880,6 +2901,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -2940,6 +2963,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -2998,6 +3023,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -3058,6 +3085,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -3116,6 +3145,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -3176,6 +3207,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -3235,6 +3268,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -3283,6 +3318,8 @@ category_id_select = driver.find_element(By.ID, "ProductTagId")
 # Etiket Güncelleme Alanında Kategori ID'si Seçme (İndirimli Ürün)
 category_id_select = Select(category_id_select)
 category_id_select.select_by_value("144")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -3346,6 +3383,8 @@ category_transaction_select = driver.find_element(By.ID, "ManufacturerTransactio
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -3407,6 +3446,8 @@ category_transaction_select = driver.find_element(By.ID, "ManufacturerTransactio
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -3464,6 +3505,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("1")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -3524,6 +3567,8 @@ category_transaction_select.select_by_value("1")
 # Sayfanın en sonuna git
 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -3574,6 +3619,8 @@ category_id_select = driver.find_element(By.ID, "ProductTagId")
 category_id_select = Select(category_id_select)
 category_id_select.select_by_value("113")
 
+time.sleep(3)
+
 try:
     #Kaydet Butonunu Bulma
     save_button = WebDriverWait(driver, 10).until(
@@ -3622,6 +3669,8 @@ category_id_select = driver.find_element(By.ID, "ProductTagId")
 # Etiket Güncelleme Alanında Kategori ID'si Seçme (Büyük Beden)
 category_id_select = Select(category_id_select)
 category_id_select.select_by_value("225")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
@@ -3681,6 +3730,8 @@ category_transaction_select = driver.find_element(By.ID, "CategoryTransactionId"
 # Kategori Güncelleme Alanında Yapılacak İşlemi Seçme
 category_transaction_select = Select(category_transaction_select)
 category_transaction_select.select_by_value("0")
+
+time.sleep(3)
 
 try:
     #Kaydet Butonunu Bulma
